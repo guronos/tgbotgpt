@@ -31,6 +31,7 @@ try {
     const responce = await this.openai.createTranscription(
         createReadStream(filepath), 
         "whisper-1")
+        
     return responce.data.text
 } catch(e) {
     console.log('Error while transcription', e.message)

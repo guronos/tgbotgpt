@@ -5,6 +5,7 @@ import { telegramFormat } from './convert.js'
 import { openai } from './openai.js';
 import { code } from 'telegraf/format';
 
+console.log(config.get('TEST'))
 const INITIAL_SESSION = {
     messages: []
 }
@@ -35,7 +36,6 @@ await contex.reply(code('Обрабатываю сообщение...'))
         const response = await openai.chat(contex.session.messages)
         contex.session.messages.push({ role: openai.roles.ASSISTANT, content: response.content })
         await contex.reply(response.content)
-        console.log(userId)
     } catch (e) {
         console.log('Error voice', e.message)
     }
