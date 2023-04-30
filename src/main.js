@@ -5,7 +5,7 @@ import { telegramFormat } from './convert.js'
 import { openai } from './openai.js';
 import { code } from 'telegraf/format';
 
-console.log(config.get('TEST'))
+const MAXIMUM_QUESTIONS = 8
 const INITIAL_SESSION = {
     messages: []
 }
@@ -15,6 +15,7 @@ bot.use(session())
 
 bot.command('new', async (ctx)=>{
     ctx.session = INITIAL_SESSION
+    
     await ctx.reply('Введите голосовое, либо текстовое сообщение')
 })
 bot.command('start', async (ctx)=>{
@@ -23,8 +24,11 @@ bot.command('start', async (ctx)=>{
 })
 
 bot.on(message('voice'), async contex => {
-    contex.session ??= INITIAL_SESSION
-    try {
+    contex.session ??= INITIAL_SESSION   
+    try { 
+    if (contex.session.messages.length >= 10) {
+        contex.session.messages.splice(0, contex.session.messages.length - MAXIMUM_QUESTIONS)
+    }
 await contex.reply(code('Обрабатываю сообщение...'))
         const link = await contex.telegram.getFileLink(contex.message.voice.file_id)
         const userId = String(contex.message.from.id)
@@ -44,6 +48,9 @@ await contex.reply(code('Обрабатываю сообщение...'))
 bot.on(message('text'), async contex => {
     contex.session ??= INITIAL_SESSION
     try {
+        if (contex.session.messages.length >= 10) {
+            contex.session.messages.splice(0, contex.session.messages.length - MAXIMUM_QUESTIONS)
+        }
 await contex.reply(code('Обрабатываю сообщение...'))
 
        contex.session.messages.push({ role: openai.roles.USER, content: contex.message.text })
